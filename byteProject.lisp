@@ -1,7 +1,7 @@
 (setq karakteri (list 'A 'B 'C 'D 'E 'F 'G 'H 'I 'J 'K 'L 'M 'N 'O 'P 'Q 'R 'S 'T 'U 'V 'W 'X 'Y 'Z))
 (defvar putevi '())
 
-(defvar graphGlobal '())
+
 
 (defvar whosPlaying 'O)
 (defvar whosPlayingFirst 'X)
@@ -117,26 +117,26 @@
 (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (last cvor))) t) nil (assoc (nth 3 (last cvor)) graph))graph)
 ))
 
-(defun distProp(obradjeni cvor  n)(cond ((null cvor) '())
+(defun distProp(obradjeni cvor  n graphGlobal)(cond ((null cvor) '())
   ((not (eq (caadr cvor ) 'E)) (list (list n (car cvor))) )
-  (t (cons (list n (car cvor) 'E) (propagate obradjeni cvor  (1+ n) )))))
+  (t (cons (list n (car cvor) 'E) (propagate obradjeni cvor  (1+ n) graphGlobal)))))
 
-(defun propagate(obradjeni cvor n)(cond 
+(defun propagate(obradjeni cvor n graphGlobal)(cond 
 ((eq n 1) (append 
 (append
-(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) nil (assoc (nth 0 (car (last cvor))) graphGlobal)) n))
-(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) nil (assoc (nth 1 (car (last cvor))) graphGlobal)) n)))
+(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) nil (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal))
+(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) nil (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal )))
 (append 
-(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) nil (assoc (nth 2 (car (last cvor))) graphGlobal)) n))
-(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) nil (assoc (nth 3 (car (last cvor))) graphGlobal)) n)))
+(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) nil (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal))
+(list (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) nil (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal)))
  ))
 (t (append 
 (append
-(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) nil (assoc (nth 0 (car (last cvor))) graphGlobal)) n)
-(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) nil (assoc (nth 1 (car (last cvor))) graphGlobal)) n))
+(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) nil (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal)
+(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) nil (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal))
 (append 
-(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) nil (assoc (nth 2 (car (last cvor))) graphGlobal)) n)
-(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) nil (assoc (nth 3 (car (last cvor))) graphGlobal)) n))
+(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) nil (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal)
+(distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) nil (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal))
 )
  )))
 
@@ -149,7 +149,8 @@
 
 (defun distOneCheck(li)(cond 
 ((null li)  '())
-((eq (length (car li)) 1) (cons (cadaar li) (distOneCheck (cdr li))))
+( (and (eq (length (car li)) 1) (not (equal (last (caar li)) (list 'E) ))) 
+(cons (cadaar li) (distOneCheck (cdr li))))
 (t  (distOneCheck (cdr li)) )))
 
 (defun closestNodes(li)(cond 
@@ -160,16 +161,16 @@
 (defun height(li)(1- (length li)))
 
 
-(defun allPossiblePlays(start paths heights)(cond 
+(defun allPossiblePlays(start paths heights graphGlobal)(cond 
   ((null paths) '())
-  (t (append (possiblePlay start (car paths) heights)
-  (allPossiblePlays start (cdr paths) heights)))
+  (t (append (possiblePlay start (car paths) heights graphGlobal)
+  (allPossiblePlays start (cdr paths) heights graphGlobal)))
   ))
-(defun possiblePlay(start path heights)
+(defun possiblePlay(start path heights graphGlobal)
   (cond
     ((null heights) '())
     ((not (contains (cadr (assoc start graphGlobal)) whosPlaying)) '())
-    (t  (cons (checkMove  start  path (car heights)) (possiblePlay start path (cdr heights)))) ;(possiblePlay start path (cdr heights)) ))
+    (t  (cons (checkMove  start  path (car heights) graphGlobal) (possiblePlay start path (cdr heights) graphGlobal ) )) 
   ) 
 )
 
@@ -181,7 +182,7 @@
   )
 )
 
-(defun checkMove(from to n)
+(defun checkMove(from to n graphGlobal)
   (cond
    ((eq (length (cadr (assoc to graphGlobal))) 1) (list from to n))
     ((> n (1- (length (cadr (assoc to graphGlobal))))) '())
@@ -197,23 +198,25 @@
  (t (contains (cdr l) el))))
 
 
-(defun moveGen(graph)(cond
+(defun moveGen(graph graphGlobal)(cond
   ((null graph) '())
-  ((eq (length (cadr (assoc (caar graph) graphGlobal))) 1 ) (moveGen (cdr graph)))
+  ((eq (length (cadr (assoc (caar graph) graphGlobal))) 1 ) (moveGen (cdr graph) graphGlobal))
   (t 
-(let* ( ( allPaths  (propagate '() (assoc (caar graph) graphGlobal) 1) )
+(let* ( ( allPaths  (propagate '() (assoc (caar graph) graphGlobal) 1 graphGlobal) )
 ( putevi (distOneCheck allPaths)) 
 )(progn 
+;; (print allPaths)
+;; (print putevi)
 (if (eq putevi '()) (setq putevi (filterPaths (removeNils allPaths) (closestNodes (removeNils allPaths)))) )
 (append 
 (progn
 (allPossiblePlays (caar graph) putevi (possibleHeights
-(cdr (reverse (cadr (assoc (caar graph) graphGlobal)))) '1))
+(cdr (reverse (cadr (assoc (caar graph) graphGlobal) ))) '1) graphGlobal)
 )
-(moveGen (cdr graph))
+(moveGen (cdr graph) graphGlobal)
 ))) )))
 
-;(setq graphGlobal (playMove 606 507 1 graphGlobal))
+(setq graphGloball (makeGraph 8 9))
 
 
 ;(format t "Hello world.~%")
@@ -222,7 +225,9 @@
 ;(cons 'E putevi)
 
 
-;(setq d (propagate '() (assoc 75 (playMove 66 57 1(playMove 64 75 1 (makeGraph 8 9)))) (playMove 66 57 1(playMove 64 75 1 (makeGraph 8 9) )) 1 ))
+;; (setq put (propagate '() (assoc 707 graphGloball) 1 graphGloball  ))
+;; (print put)
+;; (print (distOneCheck put))
 ;(print (remove-duplicates (filterPaths putevi d) ))
 
 
@@ -237,11 +242,11 @@
 ;(print (possibleHeights (cdr (reverse (cadr (assoc 11 graphGlobal)))) '1))
 ;(print (allPossiblePlays 11 putevi (possibleHeights (cdr (reverse (cadr (assoc 11 graphGlobal)))) '1)))
 
-;(print (moveGen graphGlobal))
+(print (moveGen graphGloball graphGloball))
 ;(print (grabN (cdr (reverse (cadr (assoc 57 graphGlobal)))) '3))
 
 ;(print  graphGlobal)
-;(drawTable 1 1 1 graphGlobal)
+(drawTable 1 1 1 graphGloball)
 ;(gameSetup)
 
 
@@ -250,8 +255,8 @@
 ( (equal (car li) nil) (removeNils (cdr li)))
 (t (cons (car li) (removeNils (cdr li))))))
 
-(defun validateMove (from to Depth)
-    (let ((test (list-find (append (convert-me from) (convert-me to) (list (+ Depth 1))) (removeNils (moveGen graphGlobal)))))
+(defun validateMove (from to Depth graphGlobal)
+    (let ((test (list-find (append (convert-me from) (convert-me to) (list (+ Depth 1))) (removeNils (moveGen graphGlobal graphGlobal)))))
       (cond ((null test) nil)
             (t test))
     ) 
@@ -267,17 +272,19 @@
 ;(print graphGlobal)
 ;(print (cadr (assoc 303 graphGlobal)))
 
-(defun validateAndPlayMove(from to Depth)
-        (if (validateMove from to Depth)
-            (setq graphGlobal (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal))
-            (prog1 (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+(defun validateAndPlayMove(from to Depth graphGlobal)
+        (if (validateMove from to Depth graphGlobal)
+          (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
+
+            (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
+                        (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
+                        (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E)))
+                        newGraph)
+          )
+          (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
         )
-        ;(print (eq (length (cadr (assoc (car (convert-me to)) graphGlobal))) 3))
-        (if (eq (length (cadr (assoc (car (convert-me to)) graphGlobal))) 9)
-                      (prog1 (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) graphGlobal)))))) 
-                             (setq graphGlobal (playAndRemoveMove (car (convert-me to)) -1 1 graphGlobal '(E))))
-                      
-        )
+        ;; ;(print (eq (length (cadr (assoc (car (convert-me to)) graphGlobal))) 3))
+        
         ;;(print graphGlobal)
         ;;(print finalStack)
 )
@@ -346,7 +353,7 @@
 ;;   )
 ;; )
 
-(defun weArePlaying ()
+(defun weArePlaying (graphGlobal)
   (progn
     (format t "~% ~a is playing now! ~%" whosPlaying)
     (format t "~% Enter your move! ~%")
@@ -354,16 +361,18 @@
     (setq fromPlay (car currentPlay))
     (setq toPlay (cadr currentPlay))
     (setq heightPlay (caddr currentPlay))
-    (validateAndPlayMove fromPlay toPlay heightPlay)
-    (drawTable 1 1 1 graphGlobal)
+    (let (( newStare (validateAndPlayMove fromPlay toPlay heightPlay graphGlobal)))
+    (progn
+    (drawTable 1 1 1 newStare)
     (format t "~%  ~%")
     (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
     (cond 
       ((checkFinalStack) (gameOver))
-      (t (weArePlaying))
+      (t (weArePlaying newStare))
     )
-    (weArePlaying)
-  )
+    (weArePlaying newStare)
+  ))
+)
 )
 
 (defun gameSetup()  
@@ -395,11 +404,20 @@
               (t (gameSetup))
             )
     )
-    (setq graphGlobal (makeGraph sizeOfMatrix (1+ sizeOfMatrix)))
+    (let (( graphGlobal (makeGraph sizeOfMatrix (1+ sizeOfMatrix))) )
+    (progn 
     (drawTable 1 1 1 graphGlobal)
-    (weArePlaying)
-  )   
+    (weArePlaying graphGlobal)
+    )
+    )
+  )
 )
 
 
-(gameSetup)
+
+(defun genStates(allMoves graphGlobal)(cond 
+((null allMoves)) '() 
+(t (append (playMove (nth 0 (car allMoves)) (nth 1 (car allMoves)) (nth 2 (car allMoves)) graphGlobal)   (genStates (cdr allMoves) graphGlobal)  ))))
+
+;(gameSetup)
+
