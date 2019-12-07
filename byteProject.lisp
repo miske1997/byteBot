@@ -417,4 +417,4 @@
 )
 
 (gameSetup)
-
+;saftaj ga miske
