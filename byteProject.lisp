@@ -134,68 +134,81 @@
   )
 )
 
-;; (defun shortestDistence(cvor graph)
-;;   (min 
-;;     (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (last cvor))) t) nil (assoc (nth 0 (last cvor)) graph))graph)
-;;     (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 1 (last cvor))) t) nil (assoc (nth 1 (last cvor)) graph))graph)
-;;     (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 2 (last cvor))) t) nil (assoc (nth 2 (last cvor)) graph))graph)
-;;     (distProp (cons (car cvor) obradjeni) (if (eq (contains obradjeni (nth 3 (last cvor))) t) nil (assoc (nth 3 (last cvor)) graph))graph)
-;;   )
-;; )
-
-(defun distProp(obradjeni cvor  n graphGlobal)(cond 
-  ((null cvor) (list (list '100 'E 'E)))
-  ((eq cvor 0) '())
-  ((not (eq (caadr cvor ) 'E)) (list (list n (car cvor))) )
-  (t (cons (list n (car cvor) 'E) (propagate obradjeni cvor  (1+ n) graphGlobal)))))
-
-(defun propagate(obradjeni cvor n graphGlobal)(cond 
-((eq n 1) (append 
-(append
-(list (distProp (append (caddr cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) 0 (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal))
-(list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) 0 (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal )))
-(append 
-(list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) 0 (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal))
-(list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) 0 (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal)))
- ))
-(t (append 
-(append
-(distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) 0 (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal)
-(distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) 0 (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal))
-(append 
-(distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) 0 (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal)
-(distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) 0 (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal))
+(defun distProp(obradjeni cvor  n graphGlobal)
+  (cond 
+    ((null cvor) (list (list '100 'E 'E)))
+    ((eq cvor 0) '())
+    ((not (eq (caadr cvor ) 'E)) (list (list n (car cvor))) )
+    (t (cons (list n (car cvor) 'E) (propagate obradjeni cvor  (1+ n) graphGlobal)))
+  )
 )
- )))
 
-(defun filterPaths(paths distance ret)(cond
-  ((null paths) '())
-  ((not (atom (caar paths)) ) (append (filterPaths (car paths) distance (caar paths)) (filterPaths (cdr paths) distance '()) ))
-  ((eq (length (car paths)) 3) (filterPaths (cdr paths) distance ret))
-  ((<= (caar paths) distance) (list (cadr ret)))
-  (t (filterPaths (cdr paths) distance ret))
-))
+(defun propagate(obradjeni cvor n graphGlobal)
+  (cond 
+    ((eq n 1)
+      (append 
+        (append
+          (list (distProp (append (caddr cvor) obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) 0 (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal))
+          (list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) 0 (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal ))
+        )
+        (append 
+          (list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) 0 (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal))
+          (list (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) 0 (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal))
+        )
+      ))
+    (t 
+      (append 
+        (append
+          (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 0 (car (last cvor)))) t) 0 (assoc (nth 0 (car (last cvor))) graphGlobal)) n graphGlobal)
+          (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 1 (car (last cvor)))) t) 0 (assoc (nth 1 (car (last cvor))) graphGlobal)) n graphGlobal)
+        )
+        (append 
+          (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 2 (car (last cvor)))) t) 0 (assoc (nth 2 (car (last cvor))) graphGlobal)) n graphGlobal)
+          (distProp (append (caddr cvor)  obradjeni) (if (eq (contains obradjeni (nth 3 (car (last cvor)))) t) 0 (assoc (nth 3 (car (last cvor))) graphGlobal)) n graphGlobal)
+        )
+      ))
+  )
+)
+
+(defun filterPaths(paths distance ret)
+  (cond
+    ((null paths) '())
+    ((not (atom (caar paths)) ) (append (filterPaths (car paths) distance (caar paths)) (filterPaths (cdr paths) distance '()) ))
+    ((eq (length (car paths)) 3) (filterPaths (cdr paths) distance ret))
+    ((<= (caar paths) distance) (list (cadr ret)))
+    (t (filterPaths (cdr paths) distance ret))
+  )
+)
 
 
-(defun distOneCheck(li)(cond 
-((null li)  '())
-( (and (eq (length (car li)) 1) (not (equal (last (caar li)) (list 'E) ))) 
-(cons (cadaar li) (distOneCheck (cdr li))))
-(t  (distOneCheck (cdr li)) )))
+(defun distOneCheck(li)
+  (cond 
+    ((null li)  '())
+    ((and (eq (length (car li)) 1) (not (equal (last (caar li)) (list 'E) ))) 
+      (cons (cadaar li) (distOneCheck (cdr li))))
+    (t (distOneCheck (cdr li)) )
+  )
+)
 
-(defun closestNodes(li)(cond 
-((null li) 1000)
-((not (atom (caar li)) ) (min (closestNodes (car li)) (closestNodes (cdr li)) ))
-((eq (length (car li)) 3) (closestNodes (cdr li)))
-(t (min  (caar li)  (closestNodes (cdr li) )) )) )
+(defun closestNodes(li)
+  (cond 
+    ((null li) 1000)
+    ((not (atom (caar li)) ) (min (closestNodes (car li)) (closestNodes (cdr li)) ))
+    ((eq (length (car li)) 3) (closestNodes (cdr li)))
+    (t (min  (caar li)  (closestNodes (cdr li))))
+  )
+)
 
 (defun height(li)(1- (length li)))
 
-(defun allPossiblePlays(start paths heights graphGlobal)(cond 
-  ((null paths) '())
-  (t (append (possiblePlay start (car paths) heights graphGlobal)
-  (allPossiblePlays start (cdr paths) heights graphGlobal)))
-  ))
+(defun allPossiblePlays(start paths heights graphGlobal)
+  (cond 
+    ((null paths) '())
+    (t (append (possiblePlay start (car paths) heights graphGlobal)
+      (allPossiblePlays start (cdr paths) heights graphGlobal)))
+  )
+)
+
 (defun possiblePlay(start path heights graphGlobal)
   (cond
     ((null heights) '())
@@ -256,16 +269,13 @@
 )
 
 (defun validateAndPlayMove(from to Depth graphGlobal)
-        (if (validateMove from to Depth graphGlobal)
-          (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
-
-            (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
-                        (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
-                        (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E)))
-                        newGraph)
-          )
-          (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
-        )
+  (if (validateMove from to Depth graphGlobal)
+    (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
+      (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
+          (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
+                  (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E))) newGraph))
+      (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+  )
 )
 
 (defun list-find (el lista)
@@ -301,11 +311,11 @@
         ((equal (countStack 'X finalStack) 2) 
           (progn 
             (append (list 'X) victor)
-            gameOver))
+            t))
         ((equal (countStack 'O finalStack) 2) 
           (progn
             (append (list 'O) victor)
-            gameOver))
+            t))
         (t '())
       )
     )
@@ -314,22 +324,15 @@
         ((equal (countStack 'X finalStack) 3) 
           (progn
             (append (list 'X) victor)
-            gameOver))
+            t))
         ((equal (countStack 'O finalStack) 3) 
           (progn
             (append (list 'O) victor)
-            gameOver))
+            t))
         (t '())
       )
     )
     (t '())
-  )
-)
-
-(defun gameOver()
-  (progn
-    (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor)
-    (t)
   )
 )
 
@@ -354,7 +357,7 @@
           (format t "~%  ~%")
           (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
           (cond 
-            ((checkFinalStack) (gameOver))
+            ((checkFinalStack) (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor))
             (t (weArePlaying newState))
           )
         )
@@ -401,4 +404,3 @@
 )
 
 (gameSetup)
-;saftaj ga miske
