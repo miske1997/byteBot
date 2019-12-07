@@ -191,19 +191,16 @@
 
 (defun height(li)(1- (length li)))
 
-(defun allPossiblePlays(start paths heights graphGlobal)
-  (cond 
-    ((null paths) '())
-    (t (append (possiblePlay start (car paths) heights graphGlobal)
-          (allPossiblePlays start (cdr paths) heights graphGlobal)))
-  )
-)
-
+(defun allPossiblePlays(start paths heights graphGlobal)(cond 
+  ((null paths) '())
+  (t (append (possiblePlay start (car paths) heights graphGlobal)
+  (allPossiblePlays start (cdr paths) heights graphGlobal)))
+  ))
 (defun possiblePlay(start path heights graphGlobal)
   (cond
     ((null heights) '())
     ((not (contains (cadr (assoc start graphGlobal)) whosPlaying)) '())
-    (t  (cons (checkMove  start  path (car heights) graphGlobal) (possiblePlay start path (cdr heights) graphGlobal ) )) 
+    (t  (append (checkMove  start  path (car heights) graphGlobal) (possiblePlay start path (cdr heights) graphGlobal ) )) 
   ) 
 )
 
@@ -253,19 +250,22 @@
 
 (defun validateMove (from to Depth graphGlobal)
     (let ((test (list-find (append (convert-me from) (convert-me to) (list (+ Depth 1))) (removeNils (moveGen graphGlobal graphGlobal)))))
-      (cond ((null test) nil) (t test))
+      (cond ((null test) nil)
+            (t test))
     ) 
 )
 
 (defun validateAndPlayMove(from to Depth graphGlobal)
-  (if (validateMove from to Depth graphGlobal)
-    (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
-      (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
-        (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
-          (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E))) newGraph))
-    (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") 
-                        (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
-  )
+        (if (validateMove from to Depth graphGlobal)
+          (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
+
+            (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
+                        (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
+                        (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E)))
+                        newGraph)
+          )
+          (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+        )
 )
 
 (defun list-find (el lista)
