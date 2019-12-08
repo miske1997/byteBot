@@ -312,11 +312,11 @@
       (cond 
         ((equal (countStack 'X finalStack) 2) 
           (progn 
-            (append (list 'X) victor)
+            (setq victor (append (list 'X) victor))
             t))
         ((equal (countStack 'O finalStack) 2) 
           (progn
-            (append (list 'O) victor)
+            (setq victor (append (list 'O) victor))
             t))
         (t '())
       )
@@ -325,11 +325,11 @@
       (cond
         ((equal (countStack 'X finalStack) 3) 
           (progn
-            (append (list 'X) victor)
+            (setq victor (append (list 'X) victor))
             t))
         ((equal (countStack 'O finalStack) 3) 
           (progn
-            (append (list 'O) victor)
+            (setq victor (append (list 'O) victor))
             t))
         (t '())
       )
