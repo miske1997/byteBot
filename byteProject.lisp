@@ -1,7 +1,7 @@
 (defvar karakteri (list 'A 'B 'C 'D 'E 'F 'G 'H 'I 'J 'K 'L 'M 'N 'O 'P 'Q 'R 'S 'T 'U 'V 'W 'X 'Y 'Z))
 (defvar putevi '())
 
-(defvar sizeOfMatrix '0)
+(defvar sizeOfMatrix '8)
 
 (defvar whosPlaying 'O)
 (defvar whosPlayingFirst 'X)
@@ -227,10 +227,10 @@
 
 (defun checkMove(from to n graphGlobal)
   (cond
+   ( (> (+ (length (removeN (cadr (assoc from graphGlobal)) (1- n) )) (1- (length (cadr (assoc to graphGlobal))))) 9) '())
    ((eq n 1) (list (list from to n)))
    ((> n (1- (length (cadr (assoc to graphGlobal))) )) '())
-    ( (> (+ (length (grabN (cadr (assoc from graphGlobal)) n)) (1- (length (cadr (assoc to graphGlobal))))) 8) '())
-    (t (list (list from to n)) )
+   (t (list (list from to n)) )
   )
 )
 
@@ -246,9 +246,12 @@
   (cond
     ((null graph) '())
     ((eq (length (cadr (assoc (caar graph) graphGlobal))) 1 ) (moveGen (cdr graph) graphGlobal))
-    (t (let* (( allPaths  (propagate '() (assoc (caar graph) graphGlobal) 1 graphGlobal))( putevi (distOneCheck allPaths)))
+    (t (let* (( allPaths  (propagate (list (caar graph)) (assoc (caar graph) graphGlobal) 1 graphGlobal))( putevi (distOneCheck allPaths)))
               (progn 
-                (if (eq putevi '()) (setq putevi (filterPaths (removeNils allPaths) (closestNodes (removeNils allPaths)) '())))
+                (if (eq putevi '()) (prog1 
+                (setq putevi (filterPaths (removeNils allPaths) (closestNodes (removeNils allPaths)) '()))
+                (print putevi)
+                ))
                 (append (progn (allPossiblePlays (caar graph) putevi (possibleHeights (cdr (reverse (cadr (assoc (caar graph) graphGlobal) ))) '1) graphGlobal)) (moveGen (cdr graph) graphGlobal)))))
   )
 )
@@ -403,4 +406,10 @@
   )
 )
 
+<<<<<<< HEAD
 (gameSetup)
+=======
+(gameSetup)
+;saftaj ga miske
+
+>>>>>>> dev
