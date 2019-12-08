@@ -1,7 +1,7 @@
 (defvar karakteri (list 'A 'B 'C 'D 'E 'F 'G 'H 'I 'J 'K 'L 'M 'N 'O 'P 'Q 'R 'S 'T 'U 'V 'W 'X 'Y 'Z))
 (defvar putevi '())
 
-(defvar sizeOfMatrix '8)
+(defvar sizeOfMatrix '0)
 
 (defvar whosPlaying 'O)
 (defvar whosPlayingFirst 'X)
@@ -248,10 +248,9 @@
     ((eq (length (cadr (assoc (caar graph) graphGlobal))) 1 ) (moveGen (cdr graph) graphGlobal))
     (t (let* (( allPaths  (propagate (list (caar graph)) (assoc (caar graph) graphGlobal) 1 graphGlobal))( putevi (distOneCheck allPaths)))
               (progn 
-                (if (eq putevi '()) (prog1 
-                (setq putevi (filterPaths (removeNils allPaths) (closestNodes (removeNils allPaths)) '()))
-                (print putevi)
-                ))
+                (if (eq putevi '()) 
+                  (prog1 
+                    (setq putevi (filterPaths (removeNils allPaths) (closestNodes (removeNils allPaths)) '()))))
                 (append (progn (allPossiblePlays (caar graph) putevi (possibleHeights (cdr (reverse (cadr (assoc (caar graph) graphGlobal) ))) '1) graphGlobal)) (moveGen (cdr graph) graphGlobal)))))
   )
 )
@@ -406,10 +405,4 @@
   )
 )
 
-<<<<<<< HEAD
 (gameSetup)
-=======
-(gameSetup)
-;saftaj ga miske
-
->>>>>>> dev
