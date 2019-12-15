@@ -338,12 +338,7 @@
   )
 )
 
-(defun genStates(allMoves graphGlobal)
-  (cond 
-    ((null allMoves)) '() 
-    (t (append (playMove (nth 0 (car allMoves)) (nth 1 (car allMoves)) (nth 2 (car allMoves)) graphGlobal) (genStates (cdr allMoves) graphGlobal)))
-  )
-)
+
 
 (defun weArePlaying (graphGlobal)
   (progn
@@ -405,4 +400,46 @@
   )
 )
 
-(gameSetup)
+;; (gameSetup)
+(defun genStates(allMoves graphGlobal)
+  (cond 
+    ((null allMoves) '() )
+    (t (cons (playMove (nth 0 (car allMoves)) (nth 1 (car allMoves)) (nth 2 (car allMoves)) graphGlobal) (genStates (cdr allMoves) graphGlobal)))
+  )
+)
+
+(defun whileMin(evalMin states depth alpha beta doWhile)(cond
+((eq doWhile nil) evalMin)
+((null states) evalMin)
+(t (let ((eval (alphaBeta (car states) (1- depth) alpha beta t))
+)(whileMin (min evalMin eval) (cdr states) depth  alpha  (min beta eval) (if (<= (min beta eval)  alpha) nil t)))
+)))
+
+(defun whileMax(evalMax states depth alpha beta doWhile )(cond
+((eq doWhile nil) evalMax)
+((null states) evalMax)
+(t (let ((eval (alphaBeta (car states) (1- depth) alpha beta nil))
+)(whileMax (max evalMax eval) (cdr states) depth (max alpha eval) beta (if (<= beta (max alpha eval)) nil t)))
+)))
+
+(defun minPlayer(states depth alpha beta)
+(whileMin 100000 states depth alpha beta t))
+(defun maxPlayer(states depth alpha beta)
+(whileMax -100000 states depth alpha beta t))
+
+;;https://www.youtube.com/watch?v=l-hh51ncgDI UZET KOD ODATLE
+(defun alphaBeta(state depth alpha beta maxPlayerr)(cond
+((eq depth 0) 50)
+((eq maxPlayerr t) 
+   (maxPlayer (genStates (moveGen state state) state) depth alpha beta))
+(t (minPlayer (genStates (moveGen state state) state) depth alpha beta))
+))
+
+
+(defvar graphGloball (makeGraph 8 9))
+
+;; (trace genStates)
+(print (alphaBeta graphGloball 1 -10000 10000 t))
+;; (print (playMove 303 202 1 graphGloball))
+;; (print (genStates (moveGen graphGloball graphGloball) graphGloball))
+;; (print (moveGen graphGloball graphGloball))
