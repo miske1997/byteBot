@@ -339,26 +339,41 @@
   )
 )
 
-
-
 (defun weArePlaying (graphGlobal)
-  (progn
-    (format t "~% ~a is playing now! ~%" whosPlaying)
-    (format t "~% Enter your move! ~%")
-    (setq currentPlay (read ))
-    (setq fromPlay (car currentPlay))
-    (setq toPlay (cadr currentPlay))
-    (setq heightPlay (caddr currentPlay))
-    (let (( newState (validateAndPlayMove fromPlay toPlay heightPlay graphGlobal)))
-        (progn
-          (drawTable 1 1 1 newState)
-          (format t "~%  ~%")
-          (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
-          (cond 
-            ((checkFinalStack) (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor))
-            (t (weArePlaying newState))
-          )
-        )
+  (cond 
+    ((equal whosPlaying whoAmI) 
+      (progn
+        (format t "~% ~a is playing now! ~%" whosPlaying)
+        (format t "~% Enter your move! ~%")
+        (setq currentPlay (read ))
+        (setq fromPlay (car currentPlay))
+        (setq toPlay (cadr currentPlay))
+        (setq heightPlay (caddr currentPlay))
+        (let (( newState (validateAndPlayMove fromPlay toPlay heightPlay graphGlobal)))
+            (progn
+              (drawTable 1 1 1 newState)
+              (format t "~%  ~%")
+              (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
+              (cond 
+                ((checkFinalStack) (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor))
+                (t (weArePlaying newState))))))
+    )
+    ((equal whosPlaying whoIsAI) 
+      (progn
+        (format t "~% ~a is playing now! ~%" whosPlaying)
+        (format t "~% AI is on the move! ~%")
+        (setq currentPlay (alphaBeta graphGlobal '() 3 -10000 10000 t))
+        (setq fromPlay (cadr currentPlay))
+        (setq toPlay (caddr currentPlay))
+        (setq heightPlay (cadddr currentPlay))
+        (let (( newState (validateAndPlayMove fromPlay toPlay heightPlay graphGlobal)))
+            (progn
+              (drawTable 1 1 1 newState)
+              (format t "~%  ~%")
+              (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
+              (cond 
+                ((checkFinalStack) (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor))
+                (t (weArePlaying newState))))))
     )
   )
 )
@@ -401,7 +416,6 @@
   )
 )
 
-;; (gameSetup)
 (defun genStates(allMoves graphGlobal playing)
   (cond 
     ((null allMoves) '() )
@@ -410,45 +424,54 @@
   )
 )
 
-(defun whileMin(evalMin states moves depth alpha beta doWhile)(cond
-((eq doWhile nil) evalMin)
-((null states) evalMin)
-(t (let ((eval (alphaBeta (car states) (car moves) (1- depth) alpha beta t))
-)(whileMin (list (min (car evalMin) (car eval)) (if (eq (min (car evalMin) (car eval)) (car eval)) (car moves) (cadr evalMin))) 
-(cdr states) (cdr moves) depth  alpha  (min beta (car eval)) (if (<= (min beta (car eval))  alpha) nil t)))
-)))
-
-(defun whileMax(evalMax states moves depth alpha beta doWhile )(cond
-((eq doWhile nil) evalMax)
-((null states) evalMax)
-(t (let ((eval (alphaBeta (car states) (car moves) (1- depth) alpha beta nil))
-)(whileMax (list (max (car evalMax) (car eval)) (if (eq (max (car evalMax) (car eval)) (car eval)) (car moves) (cadr evalMax))) 
-(cdr states) (cdr moves) depth (max alpha (car eval)) beta (if (<= beta (max alpha (car eval))) nil t)))
-)))
+(defun alphaBeta(state move depth alpha beta maxPlayerr)
+  (cond
+    ((eq depth 0) (list (random 200 ) move))
+    ((eq maxPlayerr t)
+       (maxPlayer (genStates (moveGen state state) state whoIsAI) (moveGen state state) depth alpha beta))
+    (t (minPlayer (genStates (moveGen state state) state whoAmI) (moveGen state state) depth alpha beta))
+  )
+)
 
 (defun minPlayer(states moves depth alpha beta)
-(whileMin (list 100000) states moves depth alpha beta t))
+  (whileMin (list 100000) states moves depth alpha beta t)
+)
+
 (defun maxPlayer(states moves depth alpha beta)
-(whileMax (list -100000) states moves depth alpha beta t))
+  (whileMax (list -100000) states moves depth alpha beta t)
+)
 
-;;https://www.youtube.com/watch?v=l-hh51ncgDI UZET KOD ODATLE
-(defun alphaBeta(state move depth alpha beta maxPlayerr)(cond
-((eq depth 0) (list (random 200 ) move))
-((eq maxPlayerr t) 
-   (progn (print move ) (print '(maxPl)) (maxPlayer (genStates (moveGen state state) state whoIsAI) (moveGen state state) depth alpha beta)))
-(t (progn (print move ) (print '(minPl)) (minPlayer (genStates (moveGen state state) state whoAmI) (moveGen state state) depth alpha beta)))
-))
+(defun whileMin(evalMin states moves depth alpha beta doWhile)
+  (cond
+    ((eq doWhile nil) evalMin)
+    ((null states) evalMin)
+    (t (let ((eval (alphaBeta (car states) (car moves) (1- depth) alpha beta t)))
+            (whileMin (list (min (car evalMin) (car eval)) (if (eq (min (car evalMin) (car eval)) (car eval)) (car moves) (cadr evalMin))) 
+            (cdr states) (cdr moves) depth  alpha  (min beta (car eval)) (if (<= (min beta (car eval))  alpha) nil t))))
+  )
+)
 
+(defun whileMax(evalMax states moves depth alpha beta doWhile )
+  (cond
+    ((eq doWhile nil) evalMax)
+    ((null states) evalMax)
+    (t (let ((eval (alphaBeta (car states) (car moves) (1- depth) alpha beta nil)))
+            (whileMax (list (max (car evalMax) (car eval)) (if (eq (max (car evalMax) (car eval)) (car eval)) (car moves) (cadr evalMax))) 
+            (cdr states) (cdr moves) depth (max alpha (car eval)) beta (if (<= beta (max alpha (car eval))) nil t))))
+  )
+)
 
-(defvar graphGloball (makeGraph 8 9))
-(defvar test '((101 (E) (0 0 202 0)) (103 (E) (0 0 204 202)) (105 (E) (0 0 206 204)) (107 (E) (0 0 208 206)) (202 (E) (101 103 303 301))
- (204 (E) (103 105 305 303)) (206 (E) (105 107 307 305)) (208 (E) (107 0 0 307)) (301 (E) (0 202 402 0)) (303 (E) (202 204 404 402))
- (305 (O  E) (204 206 406 404)) (307 (E) (206 208 408 406)) (402 (E) (301 303 503 501)) (404 (E) (303 305 505 503))
- (406 (X X X E) (305 307 507 505)) (408 (E) (307 0 0 507)) (501 (E) (0 402 602 0)) (503 (E) (402 404 604 602)) (505 (E) (404 406 606 604))
- (507 (O X X X E) (406 408 608 606)) (602 (E) (501 503 703 701)) (604 (E) (503 505 705 703)) (606 (E) (505 507 707 705))
- (608 (E) (507 0 0 707)) (701 (E) (0 602 802 0)) (703 (E) (602 604 804 802)) (705 (E) (604 606 806 804)) (707 (E) (606 608 808 806))
- (802 (E) (701 703 0 0)) (804 (E) (703 705 0 0)) (806 (E) (705 707 0 0)) (808 (E) (707 0 0 0))))
-(drawTable 1 1 1 test)
+(gameSetup)
+
+;; (defvar graphGloball (makeGraph 8 9))
+;; (defvar test '((101 (E) (0 0 202 0)) (103 (E) (0 0 204 202)) (105 (E) (0 0 206 204)) (107 (E) (0 0 208 206)) (202 (E) (101 103 303 301))
+;;  (204 (E) (103 105 305 303)) (206 (E) (105 107 307 305)) (208 (E) (107 0 0 307)) (301 (E) (0 202 402 0)) (303 (E) (202 204 404 402))
+;;  (305 (O  E) (204 206 406 404)) (307 (E) (206 208 408 406)) (402 (E) (301 303 503 501)) (404 (E) (303 305 505 503))
+;;  (406 (X X X E) (305 307 507 505)) (408 (E) (307 0 0 507)) (501 (E) (0 402 602 0)) (503 (E) (402 404 604 602)) (505 (E) (404 406 606 604))
+;;  (507 (O X X X E) (406 408 608 606)) (602 (E) (501 503 703 701)) (604 (E) (503 505 705 703)) (606 (E) (505 507 707 705))
+;;  (608 (E) (507 0 0 707)) (701 (E) (0 602 802 0)) (703 (E) (602 604 804 802)) (705 (E) (604 606 806 804)) (707 (E) (606 608 808 806))
+;;  (802 (E) (701 703 0 0)) (804 (E) (703 705 0 0)) (806 (E) (705 707 0 0)) (808 (E) (707 0 0 0))))
+;; (drawTable 1 1 1 test)
 
 
 ;; (trace genStates)
