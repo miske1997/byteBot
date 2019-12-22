@@ -374,11 +374,12 @@
       (progn
         (format t "~% ~a is playing now! ~%" whosPlaying)
         (format t "~% AI is on the move! ~%")
-        (setq currentPlay (alphaBeta graphGlobal '() 3 -10000 10000 t))
-        (setq fromPlay (cadr currentPlay))
-        (setq toPlay (caddr currentPlay))
-        (setq heightPlay (cadddr currentPlay))
-        (let (( newState (validateAndPlayMove fromPlay toPlay heightPlay graphGlobal)))
+        (setq currentPlay (cadr (alphaBeta graphGlobal '() 3 -10000 10000 t)))
+        (print currentPlay)
+        (setq fromPlay (car currentPlay))
+        (setq toPlay (cadr currentPlay))
+        (setq heightPlay (caddr currentPlay))
+        (let (( newState (playMove fromPlay toPlay heightPlay graphGlobal)))
             (progn
               (drawTable 1 1 1 newState)
               (format t "~%  ~%")
