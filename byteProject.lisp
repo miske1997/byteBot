@@ -272,12 +272,23 @@
 )
 
 (defun validateAndPlayMove(from to Depth graphGlobal)
-  (if (validateMove from to Depth graphGlobal)
-    (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
-      (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
-          (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
-                  (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E))) newGraph))
-      (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+  (cond 
+    ((equal whosPlaying whoAmI)
+      (if (validateMove from to Depth graphGlobal)
+        (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
+          (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
+              (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
+                      (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E))) newGraph))
+          (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+      )
+    )
+    (t 
+      (let ((newGraph (playMove (car (convert-me from)) (car (convert-me to)) (+ Depth 1) graphGlobal) ))
+        (if (eq (length (cadr (assoc (car (convert-me to)) newGraph))) 9)
+            (progn (setq finalStack (append finalStack (list (car (cadr (assoc (car (convert-me to)) newGraph)))))) 
+                    (playAndRemoveMove (car (convert-me to)) -1 1 newGraph '(E))) newGraph))
+        (prog1 graphGlobal (format t "~%~% Your move is invalid! ~%~%") (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X)))
+    )
   )
 )
 
@@ -358,7 +369,8 @@
                 ((checkFinalStack) (format t "~%~% GAME OVER! ~% ~a HAS WON THE GAME!" victor))
                 (t (weArePlaying newState))))))
     )
-    ((equal whosPlaying whoIsAI) 
+    (t
+      ;; (equal whosPlaying whoIsAI) 
       (progn
         (format t "~% ~a is playing now! ~%" whosPlaying)
         (format t "~% AI is on the move! ~%")
