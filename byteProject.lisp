@@ -526,8 +526,3 @@
 ;; (print (moveGen test test))
 ;; (print (genStates (moveGen test test) test 'O))
 ;; (print (moveGen graphGloball graphGloball))
-
-;; dodaj null potez,
-;; kad je igrac samo da predje na sledeceg,
-;; kad je kompjuter da se ispita sta vraca cadr od alfabeta u curreny play,
-;; na osnovu toga da se kreira null potez.
