@@ -513,11 +513,11 @@
   )
 )
 
-(defun checkEightStack(state)
+(defun checkEightStack(state player)
   (cond
     ((null state) 0)
-    ((eq (length (cadar state)) 9) 20)
-    (t (checkEightStack (cdr state)) )
+    ((and (eq (length (cadar state)) 9) (eq player (caadar state))) 20)
+    (t (checkEightStack (cdr state) player) )
   )
 )
 
@@ -536,11 +536,16 @@
     (t (checkAdjisent (cdr links) count graph))
   )
 )
-
+(defun countStacks(state count)(cond 
+((null state) count)
+((not (eq (caadar state) 'E) ) (countStacks (cdr state) (1+ count)))
+(t (countStacks (cdr state) count) )))
 
 (defun heuristika(state player)
-  (+ (+ (countTops state 0) (checkEightStack state)) (if (eq player nil) (checkAdjisentStacks state 0 state) 0))
-)
+  (+ (+ (countTops state 0) (checkEightStack state whoIsAI)) (if (eq player nil) (checkAdjisentStacks state 0 state) 0) 
+  (- (countTops state 0) (countStacks state 0) ) (- 0 (checkEightStack state whoAmI))
+  ))
+
 
 
 
@@ -562,7 +567,7 @@
 ;;  (802 (E) (701 703 0 0)) (804 (E) (703 705 0 0)) (806 (E) (705 707 0 0)) (808 (E) (707 0 0 0))))
 ;; (drawTable 1 1 1 test)
 
-
+;; (print (caadar test))
 ;; (trace genStates)
 ;;(print (car (alphaBeta test '() 2 -10000 10000 t)))
 ;; (print (playMove 303 202 1 graphGloball))
