@@ -387,7 +387,7 @@
         (format t "~% AI is on the move! ~%")
         (setq alphBetEnd (alphaBeta graphGlobal '() 3 -100000 100000 t))
         (cond
-          ((equal (car alphBetEnd) -100000) (progn
+          ((equal (+ (caadr alphBetEnd) (cadadr alphBetEnd)) 202) (progn
               (drawTable 1 1 1 graphGlobal)
               (format t "~% AI just played a NULL Move! ~%")
               (setq whosPlaying (if (eq whosPlaying 'X) 'O 'X))
@@ -470,10 +470,10 @@
 
 (defun alphaBeta(state move depth alpha beta maxPlayerr)
   (cond
-    ((eq depth 0) (list (heuristika state maxPlayerr) move))
+    ((eq depth 0)  (list (heuristika state maxPlayerr) move))
     ((eq maxPlayerr t)
-       (maxPlayer (genStates (moveGen state state) state whoIsAI) (moveGen state state) depth alpha beta))
-    (t (minPlayer (genStates (moveGen state state) state whoAmI) (moveGen state state) depth alpha beta))
+       (maxPlayer (genStates (cons (list 101 101 0) (moveGen state state)) state whoIsAI) (cons (list 101 101 0) (moveGen state state)) depth alpha beta))
+    (t (minPlayer (genStates (cons (list 101 101 0) (moveGen state state)) state whoAmI) (cons (list 101 101 0) (moveGen state state)) depth alpha beta))
   )
 )
 
@@ -547,13 +547,7 @@
 (gameSetup)
 
 ;;(defvar graphGloball (makeGraph 8 9))
-;;(defvar test '((101 (E) (0 0 202 0)) (103 (E) (0 0 204 202)) (105 (E) (0 0 206 204)) (107 (E) (0 0 208 206)) (202 (E) (101 103 303 301))
-;;  (204 (E) (103 105 305 303)) (206 (E) (105 107 307 305)) (208 (E) (107 0 0 307)) (301 (E) (0 202 402 0)) (303 (E) (202 204 404 402))
-;;  (305 (O  E) (204 206 406 404)) (307 (E) (206 208 408 406)) (402 (E) (301 303 503 501)) (404 (E) (303 305 505 503))
-;;  (406 (X X X E) (305 307 507 505)) (408 (E) (307 0 0 507)) (501 (E) (0 402 602 0)) (503 (E) (402 404 604 602)) (505 (E) (404 406 606 604))
-;;  (507 (O X X X E) (406 408 608 606)) (602 (E) (501 503 703 701)) (604 (E) (503 505 705 703)) (606 (E) (505 507 707 705))
-;;  (608 (E) (507 0 0 707)) (701 (E) (0 602 802 0)) (703 (E) (602 604 804 802)) (705 (E) (604 606 806 804)) (707 (E) (606 608 808 806))
-;;  (802 (E) (701 703 0 0)) (804 (E) (703 705 0 0)) (806 (E) (705 707 0 0)) (808 (E) (707 0 0 0))))
+
 ;;  (print (caadr (assoc 202 test)))
 ;;  (print (heuristika test nil))
 ;; (drawTable 1 1 1 test)
@@ -572,6 +566,6 @@
 ;; (trace genStates)
 ;;(print (car (alphaBeta test '() 2 -10000 10000 t)))
 ;; (print (playMove 303 202 1 graphGloball))
-;; (print (moveGen test test))
+;; (print (cons (list 0 0 0)(moveGen test test)))
 ;; (print (genStates (moveGen test test) test 'O))
 ;; (print (moveGen graphGloball graphGloball))
